@@ -1,0 +1,50 @@
+<?php
+
+
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_garantibank_commerce_payment_method_info() {
+  $payment_methods = array();
+  $payment_methods['commerce_garantibank'] = array(
+    'base' => 'commerce_garantibank',
+    'title' => t('Credit Card'),
+    'short_title' => t('Credit Card'),
+    'display_title' => t('Credit Card'),
+    'description' => t('Integrates Credit Card Merchant'),
+    'terminal' => FALSE,
+    'offsite' => TRUE,
+    'active' => TRUE,
+  );
+  return $payment_methods;
+}
+
+/**
+ * Payment method callback; generation callback for the payment submission form.
+ *
+ * @param $payment_method
+ *   An array of the current settings.
+ * @param $pane_values
+ *   The current values of the pane.
+ * @param $checkout_pane
+ *   The checkout pane array.
+ * @param $order
+ *   The order object.
+ *
+ * @return
+ *   A form snippet for the checkout pane.
+ */
+function commerce_garantibank_submit_form($payment_method, $pane_values, $checkout_pane, $order) {
+  $build = array();
+  $text = theme('image', array(
+    'path' => drupal_get_path('module', 'commerce_garantibank') . '/logo.gif',
+    'alt' => t('Credit Card'),
+    'title' => t('Credit Card'),
+    'attributes' => array('class' => 'logo-creditcard'),
+  ));
+  $text .= '<div class="desc">' . t('1212') . '</div>';
+  $build['print_receipt'] = array('#markup' => $text);
+  return $build;
+}
+?>
