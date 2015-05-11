@@ -1,5 +1,19 @@
 <?php
 /**
+* Implements hook_help() to the module.
+* 
+*/
+function commerce_garantibank_help($path, $arg){
+	switch ($path){
+		case 'admin/help#garanti_bank':{
+			$ret_val = '<h3>' . t('About Credit Card Garanti Bank Merchant') . '</h3>';
+			$ret_val = '<p>' . t('Here is discription of the Module which You can Translate') . '</p>';
+			return $ret_val;
+			break;
+		}
+	}
+}
+/**
 * Implements hook_menu().
 */
 function commerce_garantibank_menu() {
