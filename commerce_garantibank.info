@@ -1,7 +1,7 @@
-name = Commerce Garanti Bank
-description = Implements Turkey Garanti Bank payment services for use with Drupal Commerce.  
+name = Commerce Payment Garanti Bank
+description = Implements Turkey Garanti Bank credit card payment service (without 3d Secure!) for use with Drupal Commerce.  
 package = Commerce (contrib)
-version = 7.x-1-dev
+version = 7.x-1.0
 author = Ivan Nosov
 dependencies[] = commerce
 dependencies[] = commerce_payment
