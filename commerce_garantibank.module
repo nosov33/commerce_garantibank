@@ -1,54 +1,5 @@
 <?php
 /**
-* Implements hook_help() to the module.
-* 
-*/
-function commerce_garantibank_help($path, $arg){
-	switch ($path){
-		case 'admin/help#garanti_bank':{
-			$ret_val = '<h3>' . t('About Credit Card Garanti Bank Merchant') . '</h3>';
-			$ret_val = '<p>' . t('Here is discription of the Module which You can Translate') . '</p>';
-			return $ret_val;
-			break;
-		}
-	}
-}
-/**
- * Implements hook_form().
- */
-function commerce_garantibank_admin_settings_form($node, &$form_state) {
-  $form = array();
-
-  $form['overview'] = array(
-    '#markup' => t('This interface allows administrators to manage general Credit Card Garanti Bank Settings'),
-    '#prefix' => '<p>',
-    '#suffix' => '</p>',
-  );
-
-
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-  );
-
-  return $form;
-}
-
-/**
- * Process a validated admin setting submission.
- */
-function commerce_garantibank_admin_settings_form_submit($form, &$form_state) {
-  // Rebuild the form.
-  $form_state['rebuild'] = TRUE;
-
-  // Save setting variables.
-
-
-  // Notify user.
-  drupal_set_message(t('***'));
-}
-/**
 * Implements hook_menu().
 */
 function commerce_garantibank_menu() {
@@ -59,43 +10,37 @@ function commerce_garantibank_menu() {
   );
   return $items;
 }
+
 /**
  * Page callback for 'pay_by_card' page with credit card fields
  */
 function commerce_garantibank_custom() {
-/* Take user's ip  */
 	if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
     	$ip = $_SERVER['HTTP_CLIENT_IP'];
 		} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
     	$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 		} else {
     	$ip = $_SERVER['REMOTE_ADDR'];
-	}   
-/* Test or Active Mode */
+		}   
         $strMode = "PROD";
         $strVersion = "v0.01";
-/* Terminal ID */
-        $strTerminalID = "1****472";
-        $strTerminalID_ = "01****472"; 
+        $strTerminalID = "10017472";
+        $strTerminalID_ = "010017472"; //TerminalID baþýna 0 eklenerek 9 digite tamamlanmalýdýr.
         $strProvUserID = "PROVAUT";
-/* Password */
-        $strProvisionPassword = "A***7"; 
-/* User ID */
-        $strUserID = "H*****J";
-/* Merchant ID */
-        $strMerchantID = "0*****3"; 
-        $strIPAddress = $ip;   
+        $strProvisionPassword = "Azyi2RK7"; //ProvUserID þifresi
+        $strUserID = "HG5MC4MJ";
+        $strMerchantID = "0763093"; //Üye Ýþyeri Numarasý
+        $strIPAddress = $ip;  //Müþteri IP si 
         $strEmailAddress = "eticaret@garanti.com.tr";
-/* Date in any format as PHP_DATE */
         $strOrderID = date("d_m_Y_H_i");
-        $strInstallmentCnt = ""; 
+        $strInstallmentCnt = ""; //Taksit Sayýsý. Boþ gönderilirse taksit yapýlmaz
         $strNumber = $_POST['cardnumber'];
         $strExpireDate = $_POST['cardexpiredatemonth'].$_POST['cardexpiredateyear'];
         $strCVV2 = $_POST['cardcvv2'];
         $toplamfiyat = $_POST['OutSum'];
-        $strAmount = $toplamfiyat * 100; 
+        $toplamfiyat2 = $_POST['toplamfiyat2'];
+        $strAmount = $toplamfiyat2*100;
         $strType = "sales";
-/* 949 is Turkish Lira (TL) code */
         $strCurrencyCode = "949";
         $strCardholderPresentCode = "0";
         $strMotoInd = "N";
@@ -125,28 +70,30 @@ function commerce_garantibank_custom() {
         $xml_parser = xml_parser_create();
         xml_parse_into_struct($xml_parser,$results,$vals,$index);
         xml_parser_free($xml_parser);
-        
+        //Sadece ReasonCode deðerini alýyoruz.
         $strReasonCodeValue = $vals[$index['REASONCODE'][0]]['value'];
         if($strReasonCodeValue == "00")
-        { 	/* If money has been sent - show the message and send email to administrator */
+        { 
             echo "<div class='mistake'><div class='container'>Thank You! Money has been sent!</div></div>";
             $message = "Name: " . $_POST['rec_name'] . "\n Phone: " . $_POST['rec_phone'] . "\n Email: " . $_POST['rec_email'] . "\n Date: " . $_POST['day'] . "." . $_POST['month'] . "." . $_POST['year'] . "\n Delivery Time: " . $_POST['delivery_time'] . "\n Adress: " . $_POST['field_adress'] . "\n Type: " . $_POST['field_type'] . "\n Cart Message: " . $_POST['field_cart_message'] . "\n Sender Phone: " . $_POST['field_sender_telefon'] . "\n Amount: " . $toplamfiyat;
         $headers  = "Content-type: text/html; charset=windows-1251 \r\n"; 
 		mail("info@turkeyflora.ru", "Yeni payment", $message, $headers); 
         } else {
-        	/* If error - show the message */
-            echo "<div class='mistake'><div class='container'>Error! Please, contact with info@turkeyflora.ru</div></div>"; 
+            echo "<div class='mistake'><div class='container'>Eror! Please, contact with info@turkeyflora.ru</div></div>"; 
         }
         }
 	$page_body = "<form action='?' method='post' class='payment'><div class='tot_al'>";
 	$page_body .= t('Total Price in TL') . ": " . $toplamfiyat . "</div>";
 	$page_body .= t('Card Number') . ": <input name='cardnumber' type='text' />";
+	$page_body .= "<input name='toplamfiyat2' value='" . $toplamfiyat2 . "' type='hidden' />";
 	$page_body .= t('Expire Date (month)') . "<select name='cardexpiredatemonth'><option value='01'>01</option><option value='02'>02</option><option value='03'>03</option><option value='04'>04</option><option value='05'>05</option><option value='06'>06</option><option value='07'>07</option><option value='08'>08</option><option value='09'>09</option><option value='10'>10</option><option value='11'>11</option><option value='12'>12</option></select>";
 	$page_body .= t('Expire Date (year)') . "<select name='cardexpiredateyear'><option value='15'>2015</option><option value='16'>2016</option><option value='17'>2017</option><option value='18'>2018</option><option value='19'>2019</option><option value='21'>2021</option><option value='22'>2022</option><option value='23'>2023</option><option value='24'>2024</option><option value='25'>2025</option><option value='26'>2026</option><option value='27'>2027</option><option value='28'>2028</option><option value='29'>2029</option></select>";
 	$page_body .= "CVV2: <input name='cardcvv2' type='text' /><br />";
-	$page_body .= "<input type='hidden' name='IsFormSubmitted' value='submitted' /><input id='submit' type='submit' value='Submit'/></form>";
+	$page_body .= "<input type='hidden' name='IsFormSubmitted' value='submitted' /><input id='submit' type='submit' value='Submit' /></form>";
 	return $page_body;
+	
 }
+
 /**
  * Implements hook_commerce_payment_method_info().
  */
@@ -154,33 +101,37 @@ function commerce_garantibank_commerce_payment_method_info() {
   $payment_methods = array();
   $payment_methods['commerce_garantibank'] = array(
     'base' => 'commerce_garantibank',
-    'title' => t('Credit Card Garanti Bank'),
+    'title' => t('Credit Card'),
     'short_title' => t('Credit Card'),
-    'display_title' => t('Credit Card Garanti Bank'),
-    'description' => t('Integrates Credit Card Garanti Bank Merchant'),
+    'display_title' => t('Credit Card'),
+    'description' => t('Integrates Credit Card Merchant'),
     'terminal' => FALSE,
     'offsite' => TRUE,
     'active' => TRUE,
+    // @todo Maybe better make it auto?
+    'offsite_autoredirect' => TRUE,
   );
   return $payment_methods;
 }
+
 /**
  * Payment method callback; generation callback for the payment submission form.
  *
  */
 function commerce_garantibank_submit_form($payment_method, $pane_values, $checkout_pane, $order) {
   $build = array();
-  /* discription oа paymen method*/
   $text .= '<div class="desc">' . t('Use this payment method to pay by Credit Card by simple form.') . '</div>';
   $build['print_receipt'] = array('#markup' => $text);
   return $build;
 }
+
 /**
  * Payment method callback: redirect form.
  */
 function commerce_garantibank_redirect_form($form, &$form_state, $order, $payment_method) {
   return commerce_garantibank_build_redirect_form($form, $form_state, $order, $payment_method['settings']);
 }
+
 /**
  * Payment method callback; generation callback for the payment redirect form.
  */
@@ -201,3 +152,5 @@ function commerce_garantibank_build_redirect_form($form, &$form_state, $order, $
   );
   return $form;
 }
+
+?>
