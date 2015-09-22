@@ -1,1 +1,1 @@
-# Drupal Commerce Garati Bank (Turkey) Module
+# Drupal Commerce Garanti Bank (Turkey) Module
